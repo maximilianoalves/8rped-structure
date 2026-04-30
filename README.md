@@ -1,4 +1,4 @@
-# 📅 Cronograma LifesHouse
+# 📅 Cronograma 8RP&A
 
 Um sistema moderno e responsivo para exibir cronogramas de eventos com integração em tempo real com Google Sheets.
 
