@@ -679,9 +679,6 @@
             ]
         };
 
-        // Lorem Ipsum para descrições
-        const loremIpsum = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.";
-
         let currentFilter = 'all';
         let allEvents = [];
         let scheduleData = {};
@@ -867,7 +864,7 @@
             const modal = document.getElementById('eventModal');
             document.getElementById('modalTitle').textContent = event.momento;
             document.getElementById('modalTime').textContent = event.hora;
-            document.getElementById('modalDescription').textContent = loremIpsum;
+            document.getElementById('modalDescription').textContent = event.descricao || "Nenhuma descrição disponível. ";
             document.getElementById('modalResponsavel').textContent = event.responsavel;
             document.getElementById('modalLocal').textContent = event.local;
             document.getElementById('modalDay').textContent = dayName;

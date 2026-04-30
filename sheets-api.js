@@ -91,7 +91,7 @@ class GoogleSheetsAPI {
             for (const sheet of sheets) {
                 console.log(`🔄 Processando aba: "${sheet}"`);
                 
-                const rows = await this.fetchData(`'${sheet}'!A:D`);
+                const rows = await this.fetchData(`'${sheet}'!A:F`);
                 console.log(`📊 Dados brutos de "${sheet}":`, rows);
 
                 // Dividir dados por dia
@@ -172,7 +172,9 @@ class GoogleSheetsAPI {
             hora: (row[0] || '-').trim(),
             momento: (row[1] || '-').trim(),
             responsavel: (row[2] || '-').trim(),
-            local: (row[3] || '-').trim()
+            local: (row[3] || '-').trim(),
+            resumo: (row[4] || '-').trim(),
+            descricao: (row[5] || '-').trim()
         };
 
         // Só adicionar se houver algo preenchido
