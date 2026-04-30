@@ -817,6 +817,13 @@
                         const detailsDiv = document.createElement('div');
                         detailsDiv.className = 'event-details';
 
+                        if(event.resumo != undefined && event.resumo != '-'){
+                            const resumoSpan = document.createElement('span');
+                            resumoSpan.className = 'event-detail-item';
+                            resumoSpan.innerHTML = `<span class="event-badge">📝 ${event.resumo}</span>`;
+                            detailsDiv.appendChild(resumoSpan);
+                        }
+
                         if (event.responsavel !== '-') {
                             const respSpan = document.createElement('span');
                             respSpan.className = 'event-detail-item';
