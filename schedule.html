@@ -1,0 +1,906 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cronograma - 8RP&A</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0066cc 0%, #e6f2ff 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            color: white;
+            margin-bottom: 40px;
+            animation: fadeIn 0.6s ease-in;
+        }
+
+        header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .search-section {
+            margin-bottom: 30px;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            animation: slideDown 0.6s ease-out;
+        }
+
+        .search-box {
+            flex: 1;
+            min-width: 250px;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 50px;
+            font-size: 1em;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .search-box:focus {
+            outline: none;
+            transform: translateY(-2px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .filter-btn {
+            padding: 12px 25px;
+            background: white;
+            border: none;
+            border-radius: 50px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .filter-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .filter-btn:active {
+            transform: translateY(0);
+        }
+
+        .filter-btn.active {
+            background: #667eea;
+            color: white;
+        }
+
+        .days-container {
+            display: grid;
+            gap: 30px;
+        }
+
+        .day-section {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+            animation: slideUp 0.6s ease-out;
+        }
+
+        .day-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            font-size: 1.8em;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .events-list {
+            padding: 20px;
+            display: grid;
+            gap: 15px;
+        }
+
+        .event-card {
+            display: grid;
+            grid-template-columns: 120px 1fr 120px;
+            gap: 20px;
+            padding: 15px;
+            background: #f8f9ff;
+            border-radius: 10px;
+            border-left: 4px solid #667eea;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            align-items: center;
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .event-card:hover {
+            background: #eef1ff;
+            transform: translateX(5px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.2);
+        }
+
+        .event-card:active {
+            transform: translateX(2px);
+        }
+
+        .event-time {
+            font-weight: bold;
+            font-size: 1.1em;
+            color: #667eea;
+            text-align: center;
+        }
+
+        .event-info {
+            flex: 1;
+        }
+
+        .event-title {
+            font-weight: 600;
+            font-size: 1.05em;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .event-details {
+            font-size: 0.9em;
+            color: #666;
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .event-detail-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .event-badge {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            padding: 3px 10px;
+            border-radius: 15px;
+            font-size: 0.75em;
+            font-weight: 600;
+        }
+
+        .event-link {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            text-align: center;
+            font-size: 0.9em;
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
+            min-height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .event-link:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .event-link:active {
+            transform: scale(0.98);
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.6);
+            animation: fadeIn 0.3s ease;
+        }
+
+        .modal.show {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background-color: white;
+            padding: 40px;
+            border-radius: 15px;
+            max-width: 600px;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            animation: slideUp 0.3s ease;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 15px;
+        }
+
+        .modal-header h2 {
+            color: #333;
+            margin: 0;
+        }
+
+        .modal-time {
+            background: #667eea;
+            color: white;
+            padding: 8px 15px;
+            border-radius: 5px;
+            font-weight: bold;
+            font-size: 1.1em;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 2em;
+            cursor: pointer;
+            color: #667eea;
+            transition: all 0.3s ease;
+        }
+
+        .close-btn:hover {
+            color: #764ba2;
+            transform: rotate(90deg);
+        }
+
+        .modal-description {
+            color: #666;
+            line-height: 1.6;
+            font-size: 1em;
+            margin-bottom: 20px;
+        }
+
+        .modal-details {
+            background: #f8f9ff;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .modal-detail-row {
+            display: grid;
+            grid-template-columns: 120px 1fr;
+            margin-bottom: 10px;
+            font-size: 0.95em;
+        }
+
+        .modal-detail-row:last-child {
+            margin-bottom: 0;
+        }
+
+        .modal-detail-label {
+            font-weight: 600;
+            color: #667eea;
+        }
+
+        .modal-detail-value {
+            color: #333;
+        }
+
+        .no-results {
+            text-align: center;
+            color: white;
+            padding: 40px;
+            font-size: 1.2em;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 1.8em;
+            }
+
+            .search-section {
+                flex-direction: column;
+                gap: 8px;
+            }
+
+            .search-box {
+                min-width: 100%;
+                padding: 15px;
+                font-size: 16px;
+            }
+
+            .filter-btn {
+                flex: 1;
+                padding: 12px 10px;
+                font-size: 0.9em;
+                min-height: 44px;
+            }
+
+            .event-card {
+                grid-template-columns: 1fr;
+                gap: 12px;
+                padding: 12px;
+            }
+
+            .event-time {
+                text-align: left;
+                font-size: 1.2em;
+                font-weight: bold;
+            }
+
+            .event-title {
+                font-size: 1.1em;
+            }
+
+            .event-details {
+                flex-direction: column;
+                gap: 8px;
+            }
+
+            .event-badge {
+                display: block;
+                padding: 6px 12px;
+                font-size: 0.85em;
+            }
+
+            .event-link {
+                padding: 12px 15px;
+                font-size: 1em;
+                min-height: 44px;
+                width: 100%;
+            }
+
+            .modal-content {
+                width: 90%;
+                padding: 20px;
+                max-height: 85vh;
+            }
+
+            .modal-header {
+                flex-direction: column;
+                gap: 10px;
+                align-items: flex-start;
+            }
+
+            .modal-header h2 {
+                font-size: 1.3em;
+                word-break: break-word;
+            }
+
+            .modal-time {
+                align-self: flex-start;
+            }
+
+            .close-btn {
+                position: absolute;
+                right: 15px;
+                top: 15px;
+                font-size: 1.8em;
+            }
+
+            .modal-detail-row {
+                grid-template-columns: 1fr;
+                font-size: 0.95em;
+                gap: 5px;
+            }
+
+            .modal-detail-label {
+                font-weight: 700;
+                display: block;
+            }
+
+            .modal-detail-value {
+                display: block;
+                margin-top: 5px;
+            }
+
+            .day-header {
+                padding: 15px;
+                font-size: 1.4em;
+            }
+
+            .events-list {
+                padding: 12px;
+                gap: 12px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            header h1 {
+                font-size: 1.5em;
+            }
+
+            header p {
+                font-size: 0.95em;
+            }
+
+            .search-box {
+                padding: 12px;
+                font-size: 16px;
+            }
+
+            .filter-btn {
+                padding: 10px 8px;
+                font-size: 0.8em;
+                min-height: 40px;
+            }
+
+            .event-card {
+                padding: 10px;
+            }
+
+            .event-time {
+                font-size: 1.1em;
+            }
+
+            .event-title {
+                font-size: 1em;
+            }
+
+            .event-detail-item {
+                font-size: 0.9em;
+            }
+
+            .event-badge {
+                padding: 5px 10px;
+                font-size: 0.8em;
+            }
+
+            .event-link {
+                padding: 10px 12px;
+                font-size: 0.95em;
+                min-height: 40px;
+            }
+
+            .modal-content {
+                width: 95%;
+                padding: 15px;
+            }
+
+            .modal-header h2 {
+                font-size: 1.1em;
+            }
+
+            .modal-description {
+                font-size: 0.95em;
+            }
+
+            .day-header {
+                padding: 12px;
+                font-size: 1.2em;
+                letter-spacing: 0px;
+            }
+
+            .events-list {
+                padding: 10px;
+                gap: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>📅 Cronograma - 8RP&A</h1>
+            <p>Acompanhe todos os eventos e atividades</p>
+        </header>
+
+        <div class="search-section">
+            <input
+                type="text"
+                class="search-box"
+                id="searchInput"
+                placeholder="🔍 Buscar por momento, responsável ou local..."
+            />
+            <button class="filter-btn" id="allBtn" data-filter="all">Todos</button>
+            <button class="filter-btn" id="sexButton" data-filter="sexta">Sexta</button>
+            <button class="filter-btn" id="sabButton" data-filter="sabado">Sábado</button>
+            <button class="filter-btn" id="domButton" data-filter="domingo">Domingo</button>
+        </div>
+
+        <div class="days-container" id="daysContainer">
+            <!-- Conteúdo gerado dinamicamente -->
+        </div>
+    </div>
+
+    <!-- Modal para descrição dos eventos -->
+    <div class="modal" id="eventModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div>
+                    <h2 id="modalTitle"></h2>
+                    <span class="modal-time" id="modalTime"></span>
+                </div>
+                <button class="close-btn" id="closeBtn">&times;</button>
+            </div>
+            <div class="modal-description" id="modalDescription"></div>
+            <div class="modal-details">
+                <div class="modal-detail-row">
+                    <span class="modal-detail-label">Responsável</span>
+                    <span class="modal-detail-value" id="modalResponsavel"></span>
+                </div>
+                <div class="modal-detail-row">
+                    <span class="modal-detail-label">Local</span>
+                    <span class="modal-detail-value" id="modalLocal"></span>
+                </div>
+                <div class="modal-detail-row">
+                    <span class="modal-detail-label">Dia</span>
+                    <span class="modal-detail-value" id="modalDay"></span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="sheets-api.js"></script>
+    <script>
+        // ============================================
+        // CONFIGURAÇÃO DA API
+        // ============================================
+        // 📌 IMPORTANTE: Você precisa configurar sua Google API Key
+        // 1. Vá para: https://console.cloud.google.com/
+        // 2. Crie um novo projeto
+        // 3. Ative a "Google Sheets API"
+        // 4. Crie uma chave de API (Credenciais > Chave de API)
+        // 5. Cole aqui:
+
+        const SPREADSHEET_ID = '1ovD0yzbQXGAXKtlfdPM7_AABjHoob0Zlt1cQJMI38sk';
+        const GOOGLE_API_KEY = 'AIzaSyD4xS_oXux1XQZs2a0dSSOi6gtLgfGIlCs'; // ← Cole sua chave aqui
+
+        // ============================================
+        // Dados de fallback (caso API não esteja configurada)
+        // ============================================
+        const fallbackScheduleData = {
+            'SEXTA-FEIRA': [
+                { hora: '19:30', momento: 'Saída São Miguel', responsavel: '-', local: '-' },
+                { hora: '20:30', momento: 'Chegada em Bom Princípio', responsavel: '-', local: '-' },
+                { hora: '20:45', momento: 'Boas-vindas e acolhida (Apresentação Equipe)', responsavel: 'Tios Bem-estar/Animação', local: 'Sala de palestras' },
+                { hora: '21:10', momento: 'Lanche', responsavel: 'Todos', local: 'Refeitório' },
+                { hora: '21:30', momento: 'Dormitórios (Subir malas, roupas e com os celulares)', responsavel: '-', local: '-' },
+                { hora: '21:50', momento: 'Por quê estamos aqui? e o que viemos buscar?', responsavel: 'Espiritualidade', local: 'Sala de palestra' },
+                { hora: '22:00', momento: 'LifesHouse', responsavel: 'Equipe: Jesus - Bitello, Menina, Sedutor, Bebado, Dinheiro, Modelo, Demonio - Léo', local: 'Sala de palestra' },
+                { hora: '22:05', momento: 'MOMENTO DO CAMINHO - Carta das angustias + Entrega próximo momento', responsavel: 'Espiritualidade + Coords', local: 'Sala de palestra' },
+                { hora: '22:25', momento: 'Retirando um por um da sala', responsavel: 'Equipe (Apoios)', local: '-' },
+                { hora: '22:35', momento: 'Lança-te', responsavel: 'Espiritualidade + Coords', local: 'Ginásio' },
+                { hora: '23:20', momento: 'Teatro da Vida', responsavel: 'Cris e Leo', local: 'Ginásio' },
+                { hora: '23:35', momento: 'Queima das cartas', responsavel: 'Cris e Leo', local: '-' },
+                { hora: '-', momento: 'Fechado para balanço (Oração)', responsavel: 'Espiritualidade', local: 'Capela' }
+            ],
+            'SÁBADO': [
+                { hora: '07:30', momento: 'Acordar (Higiene pessoal)', responsavel: 'Coords', local: '-' },
+                { hora: '08:00', momento: 'Oração da manhã (Deserto)', responsavel: 'Espiritualidade', local: 'Campo' },
+                { hora: '08:20', momento: 'Bom dia com animação', responsavel: 'Animação', local: 'Campo ou Refeitório' },
+                { hora: '08:40', momento: 'Café da manhã', responsavel: 'Cozinha', local: 'Refeitório' },
+                { hora: '09:10', momento: 'Palestra: Origem e Ideal Jasal', responsavel: 'Diuli + ??', local: 'Sala de Palestra' },
+                { hora: '09:50', momento: 'Teatro do Palhaço e Momento de ser Criança', responsavel: 'Carlos + Bolaxa', local: 'Capela' },
+                { hora: '10:10', momento: 'Folclore (AUI - MAUE)', responsavel: 'Animação', local: 'Ginásio' },
+                { hora: '10:30', momento: 'Maria espelho de vida', responsavel: 'Julia + Vick', local: 'Sala de palestras' },
+                { hora: '11:15', momento: 'VENDAR E DESCER', responsavel: 'Equipe', local: 'Sala -> Refeitório' },
+                { hora: '11:30', momento: 'Almoço com Maria', responsavel: 'Liturgia', local: 'Refeitório' },
+                { hora: '13:30', momento: 'Teatro', responsavel: 'Animação', local: 'Sala de palestras' },
+                { hora: '14:00', momento: 'Vida e Pessoa de Jesus Cristo', responsavel: 'Henrique + Alê', local: 'Sala de Palestras' },
+                { hora: '14:45', momento: 'Lava pés (Dinâmica da Palestra)', responsavel: 'Equipe', local: 'Sala de Palestras' },
+                { hora: '15:30', momento: 'Chazinho', responsavel: 'Cozinha', local: 'Hall de Entrada' },
+                { hora: '16:00', momento: 'Folclore', responsavel: 'Folclore', local: 'Sala de Palestras' },
+                { hora: '16:30', momento: 'Oficina do espírito santo', responsavel: 'Espiritualidade', local: 'Capela' },
+                { hora: '17:30', momento: 'Banho + Partilha entre os quartos', responsavel: 'Monitores', local: 'Quartos' },
+                { hora: '18:45', momento: 'Milagres Eucarísticos', responsavel: 'Kuhn', local: 'Sala de Palestras' },
+                { hora: '19:30', momento: 'Jantar de Lovor (Adoração)', responsavel: 'Espiritualidade e Folclore', local: 'Refeitório' },
+                { hora: '20:30', momento: 'Jantar + Musiquinhas', responsavel: 'Cozinha', local: 'Refeitório' },
+                { hora: '22:00', momento: 'Partilha', responsavel: 'Quase TODOS', local: 'Sala de Palestras' },
+                { hora: '-', momento: 'Oração da Noite', responsavel: '-', local: '-' }
+            ],
+            'DOMINGO': [
+                { hora: '07:00', momento: 'Alvorada Festiva', responsavel: '-', local: '-' },
+                { hora: '07:30', momento: 'Oração da Manhã - Pai-nosso explicado', responsavel: 'Espiritualidade', local: 'Capela' },
+                { hora: '08:10', momento: 'Café da Manhã', responsavel: 'Liturgia', local: 'Refeitório' },
+                { hora: '08:40', momento: 'Talento do Perdão', responsavel: 'João', local: 'Sala de Palestras' },
+                { hora: '09:40', momento: 'Folclore', responsavel: 'Folclore', local: '-' },
+                { hora: '10:00', momento: 'Familia, Santuário de vida', responsavel: 'Cris e Grazi', local: 'Capela' },
+                { hora: '11:00', momento: 'Filho Pródigo', responsavel: 'Espiritualidade + Equipe', local: '-' },
+                { hora: '11:30', momento: 'Almoço de Família', responsavel: 'Cozinha', local: 'Refeitório' },
+                { hora: '12:15', momento: 'Ensaio para a Missa', responsavel: 'Folclore', local: 'Refeitório' },
+                { hora: '12:50', momento: 'Higiene Pessoal', responsavel: 'Monitores', local: '-' },
+                { hora: '13:15', momento: 'Foto', responsavel: 'TODOS', local: 'Capela, Igreja ou Rua' },
+                { hora: '13:45', momento: 'Introdução para Cartas', responsavel: 'Espiritualidade', local: 'Capela' },
+                { hora: '14:00', momento: 'CARTAS', responsavel: 'Liturgia', local: 'Rua' },
+                { hora: '15:00', momento: 'TUDO DEPENDE DE TI', responsavel: 'Max', local: 'Sala de Palestras' },
+                { hora: '16:00', momento: 'Envio - Conclusão', responsavel: 'Coords/Espiritualidade', local: 'Capela' },
+                { hora: '17:20', momento: 'Lanche', responsavel: 'Cozinha', local: 'Refeitório' },
+                { hora: '17:40', momento: 'Saída Bom Princípio', responsavel: 'TODOS', local: '-' },
+                { hora: '18:20', momento: 'Chegada em Sapucaia do Sul', responsavel: 'TODOS', local: '-' },
+                { hora: '19:00', momento: 'Missa', responsavel: 'TODOS', local: 'São Miguel' }
+            ]
+        };
+
+        // Lorem Ipsum para descrições
+        const loremIpsum = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.";
+
+        let currentFilter = 'all';
+        let allEvents = [];
+        let scheduleData = {};
+        let isLoading = false;
+
+        // Inicializar dados
+        function initializeData(data) {
+            allEvents = [];
+            Object.entries(data).forEach(([day, events]) => {
+                events.forEach(event => {
+                    allEvents.push({
+                        ...event,
+                        day: day.toUpperCase()
+                    });
+                });
+            });
+            renderSchedule();
+        }
+
+        // Mostrar status de carregamento
+        function showLoadingStatus(message) {
+            const container = document.getElementById('daysContainer');
+            container.innerHTML = `<div class="no-results">⏳ ${message}</div>`;
+        }
+
+        // Carregar dados da API do Google Sheets
+        async function loadFromGoogleSheets() {
+            if (GOOGLE_API_KEY === 'YOUR_API_KEY_HERE') {
+                console.warn('⚠️ Google API Key não configurada. Usando dados de fallback.');
+                showLoadingStatus('📝 Usando dados de fallback (configure a API Key para dados ao vivo)');
+                scheduleData = fallbackScheduleData;
+                initializeData(scheduleData);
+                return;
+            }
+
+            showLoadingStatus('🔄 Carregando dados da planilha...');
+            isLoading = true;
+
+            try {
+                console.log('🚀 Iniciando carregamento...');
+                console.log('📌 Spreadsheet ID:', SPREADSHEET_ID);
+                console.log('🔑 API Key:', GOOGLE_API_KEY.substring(0, 10) + '...');
+
+                const loader = new ScheduleDataLoader(SPREADSHEET_ID, GOOGLE_API_KEY);
+                const data = await loader.loadWithRetry();
+
+                // Normalizar dados
+                scheduleData = {};
+                Object.entries(data).forEach(([key, events]) => {
+                    scheduleData[key.toUpperCase()] = events;
+                });
+
+                console.log('✅ Dados carregados com sucesso!', scheduleData);
+                showLoadingStatus('✅ Dados carregados! Atualizando...');
+                initializeData(scheduleData);
+
+                // Configurar auto-refresh a cada 5 minutos
+                loader.startAutoRefresh((data, error) => {
+                    if (error) {
+                        console.error('❌ Erro ao atualizar dados:', error);
+                    } else if (data) {
+                        console.log('🔄 Dados atualizados automaticamente');
+                        Object.entries(data).forEach(([key, events]) => {
+                            scheduleData[key.toUpperCase()] = events;
+                        });
+                        initializeData(scheduleData);
+                    }
+                }, 5);
+            } catch (error) {
+                console.error('❌ Erro ao carregar dados:', error);
+                console.error('Stack:', error.stack);
+                showLoadingStatus('❌ Erro ao carregar dados. Usando fallback. Verifique o console (F12)');
+                scheduleData = fallbackScheduleData;
+                initializeData(scheduleData);
+            }
+
+            isLoading = false;
+        }
+
+        // Renderizar cronograma
+        function renderSchedule(filter = 'all', searchTerm = '') {
+            const container = document.getElementById('daysContainer');
+            container.innerHTML = '';
+
+            let filteredDays = Object.entries(scheduleData);
+
+            if (filter !== 'all') {
+                const filterMap = {
+                    'sexta': 'SEXTA-FEIRA',
+                    'sabado': 'SÁBADO',
+                    'domingo': 'DOMINGO'
+                };
+                filteredDays = filteredDays.filter(([day]) => day === filterMap[filter]);
+            }
+
+            let hasResults = false;
+
+            filteredDays.forEach(([dayName, events]) => {
+                const filteredEvents = events.filter(event => {
+                    const searchLower = searchTerm.toLowerCase();
+                    return (
+                        event.momento.toLowerCase().includes(searchLower) ||
+                        event.responsavel.toLowerCase().includes(searchLower) ||
+                        event.local.toLowerCase().includes(searchLower)
+                    );
+                });
+
+                if (filteredEvents.length > 0) {
+                    hasResults = true;
+                    const daySection = document.createElement('div');
+                    daySection.className = 'day-section';
+
+                    const dayHeader = document.createElement('div');
+                    dayHeader.className = 'day-header';
+                    dayHeader.textContent = dayName;
+                    daySection.appendChild(dayHeader);
+
+                    const eventsList = document.createElement('div');
+                    eventsList.className = 'events-list';
+
+                    filteredEvents.forEach((event, index) => {
+                        const eventCard = document.createElement('div');
+                        eventCard.className = 'event-card';
+
+                        const timeDiv = document.createElement('div');
+                        timeDiv.className = 'event-time';
+                        timeDiv.textContent = event.hora;
+
+                        const infoDiv = document.createElement('div');
+                        infoDiv.className = 'event-info';
+
+                        const titleDiv = document.createElement('div');
+                        titleDiv.className = 'event-title';
+                        titleDiv.textContent = event.momento;
+
+                        const detailsDiv = document.createElement('div');
+                        detailsDiv.className = 'event-details';
+
+                        if (event.responsavel !== '-') {
+                            const respSpan = document.createElement('span');
+                            respSpan.className = 'event-detail-item';
+                            respSpan.innerHTML = `<span class="event-badge">👤 ${event.responsavel}</span>`;
+                            detailsDiv.appendChild(respSpan);
+                        }
+
+                        if (event.local !== '-') {
+                            const locSpan = document.createElement('span');
+                            locSpan.className = 'event-detail-item';
+                            locSpan.innerHTML = `<span class="event-badge">📍 ${event.local}</span>`;
+                            detailsDiv.appendChild(locSpan);
+                        }
+
+                        infoDiv.appendChild(titleDiv);
+                        infoDiv.appendChild(detailsDiv);
+
+                        const linkBtn = document.createElement('button');
+                        linkBtn.className = 'event-link';
+                        linkBtn.textContent = 'Ver Detalhes';
+                        linkBtn.onclick = (e) => {
+                            e.stopPropagation();
+                            openModal(event, dayName);
+                        };
+
+                        eventCard.appendChild(timeDiv);
+                        eventCard.appendChild(infoDiv);
+                        eventCard.appendChild(linkBtn);
+
+                        eventsList.appendChild(eventCard);
+                    });
+
+                    daySection.appendChild(eventsList);
+                    container.appendChild(daySection);
+                }
+            });
+
+            if (!hasResults) {
+                container.innerHTML = '<div class="no-results">😔 Nenhum evento encontrado com esse critério.</div>';
+            }
+        }
+
+        // Abrir modal
+        function openModal(event, dayName) {
+            const modal = document.getElementById('eventModal');
+            document.getElementById('modalTitle').textContent = event.momento;
+            document.getElementById('modalTime').textContent = event.hora;
+            document.getElementById('modalDescription').textContent = loremIpsum;
+            document.getElementById('modalResponsavel').textContent = event.responsavel;
+            document.getElementById('modalLocal').textContent = event.local;
+            document.getElementById('modalDay').textContent = dayName;
+            modal.classList.add('show');
+        }
+
+        // Fechar modal
+        function closeModal() {
+            document.getElementById('eventModal').classList.remove('show');
+        }
+
+        // Event listeners
+        document.getElementById('closeBtn').addEventListener('click', closeModal);
+        document.getElementById('eventModal').addEventListener('click', (e) => {
+            if (e.target.id === 'eventModal') closeModal();
+        });
+
+        document.getElementById('searchInput').addEventListener('input', (e) => {
+            renderSchedule(currentFilter, e.target.value);
+        });
+
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                e.target.classList.add('active');
+                currentFilter = e.target.dataset.filter;
+                renderSchedule(currentFilter, document.getElementById('searchInput').value);
+            });
+        });
+
+        // Inicialização
+        document.getElementById('allBtn').classList.add('active');
+        loadFromGoogleSheets();
+    </script>
+</body>
+</html>
