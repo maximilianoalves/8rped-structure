@@ -1,0 +1,442 @@
+﻿<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Equipe - 8RP&A</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0066cc 0%, #e6f2ff 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            color: white;
+            margin-bottom: 40px;
+            animation: fadeIn 0.6s ease-in;
+        }
+
+        header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .nav-link {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 30px auto;
+            padding: 12px 25px;
+            background: white;
+            color: #333;
+            border-radius: 50px;
+            font-weight: 600;
+            text-decoration: none;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .nav-link:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .team-list {
+            display: grid;
+            gap: 20px;
+        }
+
+        .team-card {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+            padding: 25px;
+            display: grid;
+            grid-template-columns: 1fr auto;
+            align-items: center;
+            gap: 15px;
+            animation: slideUp 0.6s ease-out;
+        }
+
+        .role-group {
+            display: block;
+            padding: 30px;
+        }
+
+        .role-group-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #eef0ff;
+            padding-bottom: 10px;
+        }
+
+        .member-list {
+            display: grid;
+            gap: 12px;
+        }
+
+        .member-item {
+            background: #f5f7ff;
+            border: 1px solid #e3e7ff;
+            border-radius: 15px;
+            padding: 18px 20px;
+        }
+
+        .member-item .member-name {
+            margin-bottom: 6px;
+        }
+
+        .member-item .member-role {
+            display: none;
+        }
+
+        .member-name {
+            font-size: 1.25em;
+            font-weight: 700;
+            color: #222;
+        }
+
+        .member-role {
+            font-size: 1em;
+            color: #555;
+        }
+
+        .member-extra {
+            font-size: 0.95em;
+            color: #777;
+        }
+
+        .badge {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            padding: 10px 16px;
+            border-radius: 999px;
+            font-weight: 700;
+            font-size: 0.95em;
+        }
+
+        .no-results {
+            text-align: center;
+            color: white;
+            padding: 40px;
+            font-size: 1.2em;
+        }
+
+        .search-section {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 30px;
+        }
+
+        .search-box {
+            width: 100%;
+            max-width: 480px;
+            padding: 14px 18px;
+            border: none;
+            border-radius: 50px;
+            font-size: 1em;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .search-box:focus {
+            outline: none;
+            transform: translateY(-1px);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @media (max-width: 768px) {
+            .team-card {
+                grid-template-columns: 1fr;
+            }
+
+            .nav-link {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>👥 Equipe - 8RP&A</h1>
+            <p>Consulte cargos e nomes dos membros da equipe diretamente da aba "Equipe".</p>
+        </header>
+
+        <a class="nav-link" href="index.html">← Voltar ao Cronograma</a>
+
+        <div class="search-section">
+            <input
+                type="text"
+                class="search-box"
+                id="teamSearch"
+                placeholder="🔍 Buscar por nome ou cargo..."
+            />
+        </div>
+
+        <div class="team-list" id="teamContainer">
+            <div class="no-results">⏳ Carregando equipe...</div>
+        </div>
+    </div>
+
+    <script src="sheets-api.js"></script>
+    <script>
+        const SPREADSHEET_ID = '1ovD0yzbQXGAXKtlfdPM7_AABjHoob0Zlt1cQJMI38sk';
+        const GOOGLE_API_KEY = 'AIzaSyD4xS_oXux1XQZs2a0dSSOi6gtLgfGIlCs';
+
+        const fallbackTeamData = [
+            { name: 'Nome Exemplo', role: 'Cargo Exemplo', extra: 'Use a planilha para mostrar dados reais.' }
+        ];
+
+        const knownRoles = [
+            'coordenador',
+            'base',
+            'espiritualidade',
+            'liturgia',
+            'animação',
+            'animacao',
+            'folclore',
+            'monitores',
+            'monitoras',
+            'apoios',
+            'cozinha',
+            'tios'
+        ];
+
+        function normalizeRole(value) {
+            return (value || '').toString().trim().toLowerCase()
+                .normalize('NFD')
+                .replace(/[\u0300-\u036f]/g, '')
+                .replace(/[^\w\s]/g, '')
+                .normalize('NFC');
+        }
+
+        const api = new GoogleSheetsAPI(SPREADSHEET_ID, GOOGLE_API_KEY);
+        let teamMembers = [];
+
+        function showTeamLoading(message) {
+            document.getElementById('teamContainer').innerHTML = `<div class="no-results">${message}</div>`;
+        }
+
+        function parseTeamRows(rows) {
+            if (!rows || rows.length === 0) return [];
+
+            const cleanedRows = rows.map(row => (row || []).map(cell => (cell || '').toString().trim()));
+            const isKnownRole = (value) => knownRoles.includes(normalizeRole(value));
+            const isNameValue = (value) => {
+                const normalized = normalizeRole(value);
+                return normalized && !knownRoles.includes(normalized);
+            };
+
+            const headerRow = cleanedRows[0] || [];
+            const roleHeaderIndices = headerRow
+                .map((cell, index) => isKnownRole(cell) ? index : -1)
+                .filter(index => index >= 0);
+
+            const hasRoleLabelBelow = (col) => {
+                for (let rowIndex = 1; rowIndex < cleanedRows.length; rowIndex++) {
+                    if (isKnownRole(cleanedRows[rowIndex][col] || '')) {
+                        return true;
+                    }
+                }
+                return false;
+            };
+
+            const countValidNamesInColumn = (col) => {
+                let names = 0;
+                let total = 0;
+
+                for (let rowIndex = 1; rowIndex < cleanedRows.length; rowIndex++) {
+                    const cell = cleanedRows[rowIndex][col] || '';
+                    if (!cell) continue;
+                    total++;
+                    if (isNameValue(cell)) names++;
+                }
+
+                return { names, total };
+            };
+
+            const horizontalMembers = [];
+            roleHeaderIndices.forEach(col => {
+                if (roleHeaderIndices.length === 1 && hasRoleLabelBelow(col)) {
+                    return;
+                }
+
+                const stats = countValidNamesInColumn(col);
+                if (stats.names > 0 && stats.names / Math.max(stats.total, 1) >= 0.4) {
+                    const roleName = cleanedRows[0][col] || '';
+                    for (let rowIndex = 1; rowIndex < cleanedRows.length; rowIndex++) {
+                        const rawName = cleanedRows[rowIndex][col] || '';
+                        if (isNameValue(rawName)) {
+                            horizontalMembers.push({ name: rawName, role: roleName, extra: '' });
+                        }
+                    }
+                }
+            });
+
+            if (horizontalMembers.length > 0) {
+                return horizontalMembers;
+            }
+
+            const verticalMembers = [];
+            let currentRole = '';
+
+            cleanedRows.forEach(row => {
+                const roleCellIndex = row.findIndex(cell => isKnownRole(cell));
+                if (roleCellIndex >= 0) {
+                    currentRole = row[roleCellIndex];
+                    return;
+                }
+
+                if (currentRole) {
+                    row.forEach(cell => {
+                        if (isNameValue(cell)) {
+                            verticalMembers.push({ name: cell, role: currentRole, extra: '' });
+                        }
+                    });
+                }
+            });
+
+            if (verticalMembers.length > 0) {
+                return verticalMembers;
+            }
+
+            const fallbackHeader = cleanedRows[0].map(cell => normalizeRole(cell));
+            let nameIndex = fallbackHeader.findIndex(h => ['nome', 'nome completo', 'colaborador', 'integrante'].includes(h));
+            let roleIndex = fallbackHeader.findIndex(h => ['cargo', 'funcao', 'funcão', 'posicao', 'posição', 'role'].includes(h));
+            let extraIndex = fallbackHeader.findIndex(h => ['obs', 'observacao', 'observação', 'extra', 'notas'].includes(h));
+
+            if (nameIndex < 0) nameIndex = 0;
+            if (roleIndex < 0) roleIndex = 1;
+            if (extraIndex < 0) extraIndex = 2;
+
+            return cleanedRows.slice(1).map(row => ({
+                name: row[nameIndex] || '',
+                role: row[roleIndex] || '',
+                extra: row[extraIndex] || ''
+            })).filter(member => member.name || member.role);
+        }
+
+        function renderTeam(members) {
+            const container = document.getElementById('teamContainer');
+            container.innerHTML = '';
+
+            if (!members || members.length === 0) {
+                container.innerHTML = '<div class="no-results">😔 Nenhum membro encontrado na aba "Equipe".</div>';
+                return;
+            }
+
+            const grouped = {};
+            const roleOrder = [];
+
+            members.forEach(member => {
+                const role = member.role || 'Sem cargo';
+                if (!grouped[role]) {
+                    grouped[role] = [];
+                    roleOrder.push(role);
+                }
+                grouped[role].push(member);
+            });
+
+            roleOrder.forEach(role => {
+                const card = document.createElement('div');
+                card.className = 'team-card role-group';
+
+                const header = document.createElement('div');
+                header.className = 'role-group-header';
+                header.innerHTML = `
+                    <div class="member-name">${role}</div>
+                    <div class="badge">${grouped[role].length} membro(s)</div>
+                `;
+
+                const list = document.createElement('div');
+                list.className = 'member-list';
+
+                grouped[role].forEach(member => {
+                    const item = document.createElement('div');
+                    item.className = 'member-item';
+                    item.innerHTML = `
+                        <div class="member-name">${member.name || '—'}</div>
+                        ${member.extra ? `<div class="member-extra">${member.extra}</div>` : ''}
+                    `;
+                    list.appendChild(item);
+                });
+
+                card.appendChild(header);
+                card.appendChild(list);
+                container.appendChild(card);
+            });
+        }
+
+        async function loadTeamData() {
+            if (GOOGLE_API_KEY === 'YOUR_API_KEY_HERE') {
+                showTeamLoading('📝 Usando dados de fallback. Configure a Google API Key para dados ao vivo.');
+                teamMembers = fallbackTeamData;
+                renderTeam(teamMembers);
+                return;
+            }
+
+            showTeamLoading('🔄 Carregando dados da aba "Equipe"...');
+
+            try {
+                const rows = await api.fetchData("'Equipe'!A:Z");
+                teamMembers = parseTeamRows(rows);
+
+                if (!teamMembers.length) {
+                    showTeamLoading('😔 A aba "Equipe" está vazia ou não há dados formatados corretamente.');
+                } else {
+                    renderTeam(teamMembers);
+                }
+            } catch (error) {
+                console.error('Erro ao carregar equipe:', error);
+                showTeamLoading('❌ Não foi possível carregar os dados da equipe. Verifique o console.');
+            }
+        }
+
+        document.getElementById('teamSearch').addEventListener('input', (event) => {
+            const query = event.target.value.toLowerCase();
+            const filtered = teamMembers.filter(member =>
+                member.name.toLowerCase().includes(query) ||
+                member.role.toLowerCase().includes(query) ||
+                member.extra.toLowerCase().includes(query)
+            );
+            renderTeam(filtered);
+        });
+
+        loadTeamData();
+    </script>
+</body>
+</html>
+
